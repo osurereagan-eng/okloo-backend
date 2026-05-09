@@ -14,10 +14,12 @@ const { verifyToken } = require('./middleware/auth');
 const app = express();
 
 // Security Middleware
-app.use(helmet());
 app.use(cors({
-    origin: process.env.FRONTEND_URL || '*',
-    methods: ['GET', 'POST', 'DELETE'],
+    origin: [
+        process.env.FRONTEND_URL,
+        'https://okloooasisofhope.netlify.app'
+    ],
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     credentials: true
 }));
 
