@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const cloudinary = require('cloudinary').v2;
 const { verifyToken } = require('../middleware/auth');
-const db = require('../config/firebaseAdmin');
+const { admin, db } = require('../config/firebaseAdmin');
 
 // Configure Cloudinary
 cloudinary.config({
@@ -38,7 +38,7 @@ router.post('/save', verifyToken, async (req, res) => {
             publicId,
             type, // 'image' or 'video'
             title: title || 'Untitled',
-            createdAt: new Date().toISOString()
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
         res.json({ success: true, id: docRef.id });
@@ -89,7 +89,7 @@ router.post('/logo', verifyToken, async (req, res) => {
         await db.collection('config').doc('branding').set({
             logoUrl: url,
             publicId: publicId,
-            updatedAt: new Date().toISOString()
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
         res.json({ success: true, url });

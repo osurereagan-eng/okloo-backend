@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const crypto = require('crypto');
-const db = require('../config/firebaseAdmin');
+const { admin, db } = require('../config/firebaseAdmin');
 const admin = require('firebase-admin');
 
 // Environment Variables
