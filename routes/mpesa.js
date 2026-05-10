@@ -13,7 +13,10 @@ const CALLBACK_URL = process.env.MPESA_CALLBACK_URL;
 
 // Generate Access Token
 async function getAccessToken() {
-    const auth = Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString('base64');
+    console.log('KEY:', CONSUMER_KEY);
+console.log('SECRET:', CONSUMER_SECRET);
+
+const auth = Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString('base64');
     
     const response = await axios.get('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
         headers: { Authorization: `Basic ${auth}` }
