@@ -12,7 +12,7 @@ const cloudinaryRoutes = require('./routes/cloudinary');
 const { verifyToken } = require('./middleware/auth');
 
 const app = express();
-
+app.set('trust proxy', 1);
 // Security Middleware
 app.use(cors({
     origin: [
