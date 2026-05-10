@@ -15,7 +15,7 @@ const CALLBACK_URL = process.env.MPESA_CALLBACK_URL;
 async function getAccessToken() {
     const auth = Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString('base64');
     
-    const response = await axios.get('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
+    const response = await axios.get('https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
         headers: { Authorization: `Basic ${auth}` }
     });
     
@@ -33,7 +33,15 @@ function generatePassword() {
 router.post('/', async (req, res) => {
     try {
         const { amount, phone, donorName } = req.body;
-        
+        let formattedPhone = phone;
+
+if (phone.startsWith('0')) {
+    formattedPhone = '254' + phone.substring(1);
+}
+
+if (phone.startsWith('+254')) {
+    formattedPhone = phone.substring(1);
+}
         // Input Validation
         if (!amount || !phone) {
             return res.status(400).json({ success: false, message: 'Amount and phone are required' });
@@ -48,23 +56,23 @@ router.post('/', async (req, res) => {
             Timestamp: timestamp,
             TransactionType: "CustomerPayBillOnline",
             Amount: amount,
-            PartyA: phone,
+            PartyA: formattedPhone,
             PartyB: SHORTCODE,
-            PhoneNumber: phone,
+            PhoneNumber: formattedPhone,
             CallBackURL: CALLBACK_URL,
             AccountReference: "OKLOO Donation",
             TransactionDesc: "Charity Donation"
         };
 
         const response = await axios.post(
-            'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
+            'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
             payload,
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
         // Store pending transaction
         await db.collection('pendingTransactions').doc(response.data.CheckoutRequestID).set({
-            phone,
+            phone: formattedPhone,
             amount,
             donorName,
             status: 'pending',
@@ -77,12 +85,16 @@ router.post('/', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('STK Push Error:', error.response?.data || error.message);
-        res.status(500).json({ 
-            success: false, 
-            message: error.response?.data?.errorMessage || 'Failed to initiate payment' 
-        });
-    }
+
+    console.error('========= MPESA ERROR =========');
+    console.error(error.response?.data || error.message);
+    console.error('===============================');
+
+    res.status(500).json({
+        success: false,
+        error: error.response?.data || error.message
+    });
+}
 });
 
 // Callback Route (M-Pesa calls this)
