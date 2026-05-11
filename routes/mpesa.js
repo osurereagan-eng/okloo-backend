@@ -36,14 +36,14 @@ function generatePassword() {
 router.post('/', async (req, res) => {
     try {
         const { amount, phone, donorName } = req.body;
-        let formattedPhone = phone;
+        let formattedPhone = phone.trim();
 
-if (phone.startsWith('0')) {
-    formattedPhone = '254' + phone.substring(1);
-}
+let formattedPhone = phone.trim();
 
-if (phone.startsWith('+254')) {
-    formattedPhone = phone.substring(1);
+if (formattedPhone.startsWith('+254')) {
+    formattedPhone = formattedPhone.replace('+', '');
+} else if (formattedPhone.startsWith('0')) {
+    formattedPhone = '254' + formattedPhone.substring(1);
 }
         // Input Validation
         if (!amount || !phone) {
