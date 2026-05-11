@@ -38,7 +38,6 @@ router.post('/', async (req, res) => {
         const { amount, phone, donorName } = req.body;
         let formattedPhone = phone.trim();
 
-let formattedPhone = phone.trim();
 
 if (formattedPhone.startsWith('+254')) {
     formattedPhone = formattedPhone.replace('+', '');
