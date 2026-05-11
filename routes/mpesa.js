@@ -52,6 +52,11 @@ if (formattedPhone.startsWith('+254')) {
         const token = await getAccessToken();
         const { password, timestamp } = generatePassword();
         
+        console.log('PHONE RECEIVED:', phone);
+        console.log('FORMATTED PHONE:', formattedPhone);
+        console.log('AMOUNT:', amount);
+        console.log('DONOR NAME:', donorName);
+
         const payload = {
             BusinessShortCode: SHORTCODE,
             Password: password,
