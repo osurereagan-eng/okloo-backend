@@ -50,27 +50,44 @@ router.post('/save', verifyToken, async (req, res) => {
 // Delete Media (Cloudinary + Firestore)
 router.delete('/:id', verifyToken, async (req, res) => {
     try {
-        const { id } = req.params;
-        
-        // Get the media record
-        const docRef = db.collection('media').doc(id);
+        // Get media document
+        const docRef = db.collection('media').doc(req.params.id);
         const doc = await docRef.get();
-        
+
         if (!doc.exists) {
-            return res.status(404).json({ success: false, message: 'Media not found' });
+            return res.status(404).json({
+                success: false,
+                message: 'Media not found'
+            });
         }
-        
-        const { publicId } = doc.data();
-        
+
+        const data = doc.data();
+
         // Delete from Cloudinary
-        await cloudinary.uploader.destroy(publicId, { resource_type: 'auto' });
-        
-        // Delete from Firestore
+        if (data.publicId) {
+            await cloudinary.uploader.destroy(
+                data.publicId,
+                {
+                    resource_type: data.type === 'video' ? 'video' : 'image'
+                }
+            );
+        }
+
+        // Delete Firestore document
         await docRef.delete();
-        
-        res.json({ success: true });
+
+        res.json({
+            success: true,
+            message: 'Deleted successfully'
+        });
+
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
     }
 });
 
